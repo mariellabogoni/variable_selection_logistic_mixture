@@ -20,3 +20,4 @@ for (i in 1:n) {
   y[i]<-rbinom(1,N,p[i])
 }
 remove(p)
+k_true=k
