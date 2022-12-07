@@ -233,8 +233,8 @@ for (a in 1:k) {
   
 }
 
-if(k==k_verd)
-{ L<-label.switching(method = "ECR", zpivot = S_verd, z = S, K = k)
+if(k==k_true)
+{ L<-label.switching(method = "ECR", zpivot = S_true, z = S, K = k)
 }else
 { L<-label.switching(method = "ECR", zpivot = S[1,], z = S, K = k)
 }
