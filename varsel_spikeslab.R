@@ -210,38 +210,45 @@ S<-matrix(S, nrow = size, ncol = length(y), byrow = T)
 ############################
 #  label switching         
 ###########################  
-if(k!=1){
-  maxindex<-which.max(logvero)
-  J<-2*param + 1
-  mcmc<-array(data = NA, dim = c(size,k,J))
-  j=1
-  for (a in 1:k) {
-    mcmc[,a,]<-cbind(betas[,j:(a*param)],indicator[,j:(a*param)],w[,a])
-    j<-j+param
-    
-  }
-  L<-label.switching(method = "ECR", zpivot = S_true, z = S, K = k)
+J<-2*param + 1
+mcmc<-array(data = NA, dim = c(size,k,J))
+j=1
+for (a in 1:k) {
+  mcmc[,a,]<-cbind(betas[,j:(a*param)],indicadora[,j:(a*param)],w[,a])
+  j<-j+param
   
-  mcmc_final<-permute.mcmc(mcmc,L$permutations$ECR)   #new mcmc sample
-  w<-mcmc_final$output[,,J]
+}
+
+if(k==k_verd)
+{ L<-label.switching(method = "ECR", zpivot = S_verd, z = S, K = k)
+}else
+{ L<-label.switching(method = "ECR", zpivot = S[1,], z = S, K = k)
+}
+
+### correcting the samples
+
+mcmc_final<-permute.mcmc(mcmc,L$permutations$ECR)   
+w<-mcmc_final$output[,,J]
+
+#Uptading Betas
+j=1
+for (b in 1:k) { 
   
-  #Uptading Betas
-  j=1
-  for (b in 1:k) { 
-    
-    betas[,j:(b*param)]<-mcmc_final$output[,b,1:param]  
-    j<-j+param
-  }
-  j=1
-  for (b in 1:k) { 
-    indicator[,j:(b*param)]<-mcmc_final$output[,b,(param+1):(J-1)]  
-    j<-j+param
-  }
-  #Uptading S
-  for (i in 1:size){
-    for(j in 1:length(y))
-    {    aux<-S[i,j]
-    S[i,j]<-L$permutations$ECR[i, aux]}
+  betas[,j:(b*param)]<-mcmc_final$output[,b,1:param]  
+  j<-j+param
+}
+
+j=1
+for (b in 1:k) { 
+  indicadora[,j:(b*param)]<-mcmc_final$output[,b,(param+1):(J-1)]  
+  j<-j+param
+}
+
+#Uptading S
+for (i in 1:size){
+  for(j in 1:length(y))
+  {    aux<-S[i,j]
+       S[i,j]<-which(L$permutations$ECR[i,]==S[i,j])  
   }
 }
 
